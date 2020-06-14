@@ -12,7 +12,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 /**
  * Created by lejard_h on 20/12/2017.
  */
@@ -88,6 +90,38 @@ public class BrowserClient extends WebViewClient {
         FlutterWebviewPlugin.channel.invokeMethod("onState", data);
         return isInvalid;
     }
+    @Override
+      public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {
+        FileInputStream input;
+        String url = request.getUrl().toString();
+        String key = "https://localfile";
+        if (url.contains(key)){
+            String localFilePath = url.replace(key, "");
+            try {
+                File file = new File(localFilePath);
+                input = new FileInputStream(file);
+                String mimeType = "image/jpg";
+                if (url.lastIndexOf(".jpg") != -1 || url.lastIndexOf(".jpeg") != -1){
+                    mimeType = "image/jpg";
+                } else if(url.lastIndexOf(".png") != -1){
+                    mimeType = "image/png";
+                } else if(url.lastIndexOf(".bmp") != -1){
+                    mimeType = "image/bmp";
+                } else if(url.lastIndexOf(".gif") != -1){
+                    mimeType = "image/gif";
+                } else if(url.lastIndexOf(".mp4") != -1 || url.lastIndexOf(".mpg4") != -1 || url.lastIndexOf(".m4v") != -1 || url.lastIndexOf(".mp4v") != -1){
+                    mimeType = "video/mp4";
+                } else if (url.lastIndexOf(".pdf") != -1){
+                    mimeType = "application/pdf";
+                }
+                WebResourceResponse response = new WebResourceResponse(mimeType,"UTF-8",input);
+                return response;
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+        }
+        return super.shouldInterceptRequest(view, request);
+      }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     @Override
