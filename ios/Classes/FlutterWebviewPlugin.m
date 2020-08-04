@@ -273,8 +273,15 @@ static NSString *const CHANNEL_NAME = @"flutter_webview_plugin";
         if (headers != nil) {
             [request setAllHTTPHeaderFields:headers];
         }
-        
-        [self.webview loadRequest:request];
+        //modified by qiuyi 20200608
+        if([url hasPrefix:@"https://localfile"]) {
+            NSString *us = [url stringByReplacingOccurrencesOfString:@"https://localfile" withString:@""];
+            NSURL* localUrl = [NSURL URLWithString:us];
+            [self.webview loadFileURL:localUrl allowingReadAccessToURL:[localUrl URLByDeletingLastPathComponent]];
+         }else{
+            [self.webview loadRequest:request];
+         }
+     //   [self.webview loadRequest:request];
     }
 }
 
